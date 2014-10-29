@@ -1,6 +1,6 @@
 -module(taglib_nif).
 
--export([new/0,
+-export([new/1,
          myfunction/1]).
 
 -on_load(init/0).
@@ -24,7 +24,7 @@ init() ->
               end,
     erlang:load_nif(filename:join(PrivDir, ?MODULE), 0).
 
-new() ->
+new(_FileName) ->
     ?nif_stub.
 
 myfunction(_Ref) ->
@@ -35,8 +35,22 @@ myfunction(_Ref) ->
 %% ===================================================================
 -ifdef(TEST).
 
-basic_test() ->
-    {ok, Ref} = new(),
-    ?assertEqual(ok, myfunction(Ref)).
+list_of(N, Elem) -> list_of(N, Elem, []).
+
+list_of(0, _Elem, Acc) -> Acc;
+list_of(N, Elem, Acc) when N > 0 -> list_of(N - 1, Elem, [Elem | Acc]).
+
+%% basic_test() ->
+%%     {ok, Ref} = new(<<"test">>),
+%%     ?assertEqual(ok, myfunction(Ref)).
+
+file_does_not_exist_test() ->
+  {error, Reason} = new(<<"test">>),
+  ?assertEqual("File could not be opened by taglib.", Reason).
+
+filename_too_long_test() ->
+  LongFileName = list_to_binary(list_of(1024, $a)),
+  {error, Reason} = new(LongFileName),
+  ?assertEqual("Filename is longer than 1023 bytes.", Reason).
 
 -endif.
