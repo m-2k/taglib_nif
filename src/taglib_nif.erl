@@ -1,4 +1,4 @@
--module(taglib).
+-module(taglib_nif).
 
 -export([new/0,
          myfunction/1]).
@@ -22,7 +22,7 @@ init() ->
                   Path ->
                       Path
               end,
-    erlang:load_nif(filename:join(PrivDir, "taglib_nif"), 0).
+    erlang:load_nif(filename:join(PrivDir, ?MODULE), 0).
 
 new() ->
     ?nif_stub.

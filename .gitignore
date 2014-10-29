@@ -2,3 +2,6 @@
 ebin
 priv
 c_src/*.o
+.eunit
+.idea
+*.iml
