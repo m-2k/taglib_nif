@@ -1,4 +1,4 @@
-{application, taglib,
+{application, taglib_nif,
  [
   {description, "Erlang NIF bindings for the taglib library."},
   {vsn, git},
