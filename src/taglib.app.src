@@ -1,0 +1,12 @@
+{application, taglib,
+ [
+  {description, "Erlang NIF bindings for the taglib library."},
+  {vsn, git},
+  {modules, []},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+  ]},
+  {env, []}
+ ]}.
