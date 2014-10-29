@@ -1,4 +1,5 @@
 #include "erl_nif.h"
+#include "tag_c.h"
 
 static ErlNifResourceType* taglib_nif_RESOURCE = NULL;
 
@@ -50,6 +51,8 @@ static int on_load(ErlNifEnv* env, void** priv_data, ERL_NIF_TERM load_info)
                                                      flags, NULL);
     if (rt == NULL)
         return -1;
+
+    taglib_set_string_management_enabled(0);
 
     taglib_nif_RESOURCE = rt;
 
