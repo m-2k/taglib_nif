@@ -1,6 +1,7 @@
 -module(taglib_nif).
 
 -export([new/1,
+         new/2,
          myfunction/1]).
 
 -on_load(init/0).
@@ -27,6 +28,20 @@ init() ->
 new(_FileName) ->
     ?nif_stub.
 
+new_type(_FileName, _Type) ->
+  ?nif_stub.
+
+new(Filename, 'MPEG') -> new_type(Filename, 0);
+new(Filename, 'OggVorbis') -> new_type(Filename, 1);
+new(Filename, 'FLAC') -> new_type(Filename, 2);
+new(Filename, 'MPC') -> new_type(Filename, 3);
+new(Filename, 'OggFlac') -> new_type(Filename, 4);
+new(Filename, 'WavPack') -> new_type(Filename, 5);
+new(Filename, 'Speex') -> new_type(Filename, 6);
+new(Filename, 'TrueAudio') -> new_type(Filename, 7);
+new(Filename, 'MP4') -> new_type(Filename, 8);
+new(Filename, 'ASF') -> new_type(Filename, 9).
+
 myfunction(_Ref) ->
     ?nif_stub.
 
@@ -40,9 +55,11 @@ list_of(N, Elem) -> list_of(N, Elem, []).
 list_of(0, _Elem, Acc) -> Acc;
 list_of(N, Elem, Acc) when N > 0 -> list_of(N - 1, Elem, [Elem | Acc]).
 
-%% basic_test() ->
-%%     {ok, Ref} = new(<<"test">>),
-%%     ?assertEqual(ok, myfunction(Ref)).
+new_test() ->
+  {ok, _Ref} = new(<<"noise.mp3">>).
+
+new_type_test() ->
+  {ok, _Ref} = new(<<"noise.mp3">>, 'MPEG').
 
 file_does_not_exist_test() ->
   {error, Reason} = new(<<"test">>),
