@@ -20,12 +20,20 @@ typedef struct
 // Prototypes
 FFI_PROTO(taglib_nif_new_type);
 FFI_PROTO(taglib_nif_tag_title);
+FFI_PROTO(taglib_nif_tag_artist);
+FFI_PROTO(taglib_nif_tag_album);
+FFI_PROTO(taglib_nif_tag_comment);
+FFI_PROTO(taglib_nif_tag_genre);
 
 static ErlNifFunc nif_funcs[] =
 {
     {"new", 1, taglib_nif_new_type},
     {"new_type", 2, taglib_nif_new_type},
-    {"tag_title", 1, taglib_nif_tag_title}
+    {"tag_title", 1, taglib_nif_tag_title},
+    {"tag_artist", 1, taglib_nif_tag_artist},
+    {"tag_album", 1, taglib_nif_tag_album},
+    {"tag_comment", 1, taglib_nif_tag_comment},
+    {"tag_genre", 1, taglib_nif_tag_genre}
 };
 
 /* please free() result */
@@ -74,7 +82,8 @@ FFI_PROTO(taglib_nif_new_type)
     return enif_make_tuple2(env, ATOM_OK, result);
 }
 
-FFI_PROTO(taglib_nif_tag_title)
+static ERL_NIF_TERM tag_string(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[],
+    char *(*tag_function)(const TagLib_Tag *))
 {
     taglib_nif_handle* handle;
     if (!enif_get_resource(env, argv[0], taglib_nif_RESOURCE, (void **) &handle)) {
@@ -82,14 +91,20 @@ FFI_PROTO(taglib_nif_tag_title)
     }
 
     TagLib_Tag * tag = taglib_file_tag(handle->taglib_file);
-    char * title = taglib_tag_title(tag);
-    size_t size = strlen(title);
+    char * strval = tag_function(tag);
+    size_t size = strlen(strval);
     ErlNifBinary bin;
     enif_alloc_binary(size, &bin);
-    memcpy(bin.data, title, size);
-    taglib_free(title);
+    memcpy(bin.data, strval, size);
+    taglib_free(strval);
     return enif_make_binary(env, &bin);
 }
+
+FFI_PROTO(taglib_nif_tag_title) { return tag_string(env, argc, argv, &taglib_tag_title); }
+FFI_PROTO(taglib_nif_tag_artist) { return tag_string(env, argc, argv, &taglib_tag_artist); }
+FFI_PROTO(taglib_nif_tag_album) { return tag_string(env, argc, argv, &taglib_tag_album); }
+FFI_PROTO(taglib_nif_tag_comment) { return tag_string(env, argc, argv, &taglib_tag_comment); }
+FFI_PROTO(taglib_nif_tag_genre) { return tag_string(env, argc, argv, &taglib_tag_genre); }
 
 static void taglib_nif_resource_cleanup(ErlNifEnv* env, void* arg)
 {

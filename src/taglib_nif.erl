@@ -149,4 +149,24 @@ tag_title_test() ->
   Title = tag_title(File),
   ?assertEqual(<<"NoiseTrack">>, Title).
 
+tag_artist_test() ->
+  {ok, File} = new(<<"../noise.mp3">>),
+  Artist = tag_artist(File),
+  ?assertEqual(<<"">>, Artist).
+
+tag_album_test() ->
+  {ok, File} = new(<<"../noise.mp3">>),
+  Album = tag_album(File),
+  ?assertEqual(<<"NoiseAlbum">>, Album).
+
+tag_comment_test() ->
+  {ok, File} = new(<<"../noise.mp3">>),
+  Comment = tag_comment(File),
+  ?assertEqual(<<"This is short.">>, Comment).
+
+tag_genre_test() ->
+  {ok, File} = new(<<"../noise.mp3">>),
+  Genre = tag_genre(File),
+  ?assertEqual(<<"Noise">>, Genre).
+
 -endif.
