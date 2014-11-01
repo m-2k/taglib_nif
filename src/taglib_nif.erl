@@ -169,4 +169,14 @@ tag_genre_test() ->
   Genre = tag_genre(File),
   ?assertEqual(<<"Noise">>, Genre).
 
+tag_year_test() ->
+  {ok, File} = new(<<"../noise.mp3">>),
+  Year = tag_year(File),
+  ?assertEqual(2014, Year).
+
+tag_track_test() ->
+  {ok, File} = new(<<"../noise.mp3">>),
+  Track = tag_track(File),
+  ?assertEqual(1, Track).
+
 -endif.

@@ -24,6 +24,8 @@ FFI_PROTO(taglib_nif_tag_artist);
 FFI_PROTO(taglib_nif_tag_album);
 FFI_PROTO(taglib_nif_tag_comment);
 FFI_PROTO(taglib_nif_tag_genre);
+FFI_PROTO(taglib_nif_tag_year);
+FFI_PROTO(taglib_nif_tag_track);
 
 static ErlNifFunc nif_funcs[] =
 {
@@ -33,7 +35,9 @@ static ErlNifFunc nif_funcs[] =
     {"tag_artist", 1, taglib_nif_tag_artist},
     {"tag_album", 1, taglib_nif_tag_album},
     {"tag_comment", 1, taglib_nif_tag_comment},
-    {"tag_genre", 1, taglib_nif_tag_genre}
+    {"tag_genre", 1, taglib_nif_tag_genre},
+    {"tag_year", 1, taglib_nif_tag_year},
+    {"tag_track", 1, taglib_nif_tag_track}
 };
 
 /* please free() result */
@@ -105,6 +109,22 @@ FFI_PROTO(taglib_nif_tag_artist) { return tag_string(env, argc, argv, &taglib_ta
 FFI_PROTO(taglib_nif_tag_album) { return tag_string(env, argc, argv, &taglib_tag_album); }
 FFI_PROTO(taglib_nif_tag_comment) { return tag_string(env, argc, argv, &taglib_tag_comment); }
 FFI_PROTO(taglib_nif_tag_genre) { return tag_string(env, argc, argv, &taglib_tag_genre); }
+
+static ERL_NIF_TERM tag_int(ErlNifEnv* env, int argc, const ERL_NIF_TERM argv[],
+    unsigned int(*tag_function)(const TagLib_Tag *))
+{
+    taglib_nif_handle* handle;
+    if (!enif_get_resource(env, argv[0], taglib_nif_RESOURCE, (void **) &handle)) {
+        return enif_make_badarg(env);
+    }
+
+    TagLib_Tag * tag = taglib_file_tag(handle->taglib_file);
+    unsigned int intval = tag_function(tag);
+    return enif_make_int(env, (int) intval);
+}
+
+FFI_PROTO(taglib_nif_tag_year) { return tag_int(env, argc, argv, &taglib_tag_year); }
+FFI_PROTO(taglib_nif_tag_track) { return tag_int(env, argc, argv, &taglib_tag_track); }
 
 static void taglib_nif_resource_cleanup(ErlNifEnv* env, void* arg)
 {
