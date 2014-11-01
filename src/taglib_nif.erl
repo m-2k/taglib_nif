@@ -3,7 +3,6 @@
 -export([
   new/1,
   new/2,
-  file_is_valid/1,
   file_save/1,
   tag_title/1,
   tag_artist/1,
@@ -64,9 +63,6 @@ new(Filename, 'MP4') -> new_type(Filename, 8);
 new(Filename, 'ASF') -> new_type(Filename, 9).
 
 %% File
-
-file_is_valid(_File) ->
-  ?nif_stub.
 
 file_save(_File) ->
   ?nif_stub.
@@ -135,12 +131,10 @@ audioproperties_channels(_File) ->
 -ifdef(TEST).
 
 new_test() ->
-  {ok, File} = new(<<"../noise.mp3">>),
-  ?assert(file_is_valid(File)).
+  {ok, _File} = new(<<"../noise.mp3">>).
 
 new_type_test() ->
-  {ok, File} = new(<<"../noise.mp3">>, 'MPEG'),
-  ?assert(file_is_valid(File)).
+  {ok, _File} = new(<<"../noise.mp3">>, 'MPEG').
 
 file_does_not_exist_test() ->
   {error, Reason} = new(<<"test">>),

@@ -19,14 +19,12 @@ typedef struct
 
 // Prototypes
 FFI_PROTO(taglib_nif_new_type);
-FFI_PROTO(taglib_nif_file_is_valid);
 FFI_PROTO(taglib_nif_tag_title);
 
 static ErlNifFunc nif_funcs[] =
 {
     {"new", 1, taglib_nif_new_type},
     {"new_type", 2, taglib_nif_new_type},
-    {"file_is_valid", 1, taglib_nif_file_is_valid},
     {"tag_title", 1, taglib_nif_tag_title}
 };
 
@@ -74,20 +72,6 @@ FFI_PROTO(taglib_nif_new_type)
     ERL_NIF_TERM result = enif_make_resource(env, handle);
     enif_release_resource(handle);
     return enif_make_tuple2(env, ATOM_OK, result);
-}
-
-FFI_PROTO(taglib_nif_file_is_valid)
-{
-    taglib_nif_handle* handle;
-    if (!enif_get_resource(env, argv[0], taglib_nif_RESOURCE, (void **) &handle)) {
-        return enif_make_badarg(env);
-    }
-
-    if (taglib_file_is_valid(handle->taglib_file)) {
-        return ATOM_TRUE;
-    } else {
-        return ATOM_FALSE;
-    }
 }
 
 FFI_PROTO(taglib_nif_tag_title)
