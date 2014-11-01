@@ -20,12 +20,14 @@ typedef struct
 // Prototypes
 FFI_PROTO(taglib_nif_new_type);
 FFI_PROTO(taglib_nif_file_is_valid);
+FFI_PROTO(taglib_nif_tag_title);
 
 static ErlNifFunc nif_funcs[] =
 {
     {"new", 1, taglib_nif_new_type},
     {"new_type", 2, taglib_nif_new_type},
-    {"file_is_valid", 1, taglib_nif_file_is_valid}
+    {"file_is_valid", 1, taglib_nif_file_is_valid},
+    {"tag_title", 1, taglib_nif_tag_title}
 };
 
 /* please free() result */
@@ -40,7 +42,7 @@ FFI_PROTO(taglib_nif_new_type)
 {
     ErlNifBinary filename_bin;
     char * filename;
-    TagLib_File * taglib_file;
+    TagLib_File * taglib_file = NULL;
     int type_enum;
     if (!enif_inspect_binary(env, argv[0], &filename_bin)) {
         return enif_make_badarg(env);
@@ -61,6 +63,11 @@ FFI_PROTO(taglib_nif_new_type)
                                 enif_make_string(env, "File could not be opened by taglib.", ERL_NIF_LATIN1));
     }
 
+    if (!taglib_file_is_valid(taglib_file)) {
+        return enif_make_tuple2(env, ATOM_ERROR,
+                                enif_make_string(env, "File is not valid.", ERL_NIF_LATIN1));
+    }
+
     taglib_nif_handle* handle = enif_alloc_resource(taglib_nif_RESOURCE,
                                                     sizeof(taglib_nif_handle));
     handle->taglib_file = taglib_file;
@@ -72,15 +79,32 @@ FFI_PROTO(taglib_nif_new_type)
 FFI_PROTO(taglib_nif_file_is_valid)
 {
     taglib_nif_handle* handle;
-
     if (!enif_get_resource(env, argv[0], taglib_nif_RESOURCE, (void **) &handle)) {
         return enif_make_badarg(env);
     }
+
     if (taglib_file_is_valid(handle->taglib_file)) {
         return ATOM_TRUE;
     } else {
         return ATOM_FALSE;
     }
+}
+
+FFI_PROTO(taglib_nif_tag_title)
+{
+    taglib_nif_handle* handle;
+    if (!enif_get_resource(env, argv[0], taglib_nif_RESOURCE, (void **) &handle)) {
+        return enif_make_badarg(env);
+    }
+
+    TagLib_Tag * tag = taglib_file_tag(handle->taglib_file);
+    char * title = taglib_tag_title(tag);
+    size_t size = strlen(title);
+    ErlNifBinary bin;
+    enif_alloc_binary(size, &bin);
+    memcpy(bin.data, title, size);
+    taglib_free(title);
+    return enif_make_binary(env, &bin);
 }
 
 static void taglib_nif_resource_cleanup(ErlNifEnv* env, void* arg)

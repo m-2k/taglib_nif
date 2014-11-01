@@ -135,15 +135,24 @@ audioproperties_channels(_File) ->
 -ifdef(TEST).
 
 new_test() ->
-  {ok, Ref} = new(<<"../noise.mp3">>),
-  ?assert(file_is_valid(Ref)).
+  {ok, File} = new(<<"../noise.mp3">>),
+  ?assert(file_is_valid(File)).
 
 new_type_test() ->
-  {ok, Ref} = new(<<"../noise.mp3">>, 'MPEG'),
-  ?assert(file_is_valid(Ref)).
+  {ok, File} = new(<<"../noise.mp3">>, 'MPEG'),
+  ?assert(file_is_valid(File)).
 
 file_does_not_exist_test() ->
   {error, Reason} = new(<<"test">>),
   ?assertEqual("File could not be opened by taglib.", Reason).
+
+file_is_not_valid_test() ->
+  {error, Reason} = new(<<"invalid">>, 'MPEG'),
+  ?assertEqual("File is not valid.", Reason).
+
+tag_title_test() ->
+  {ok, File} = new(<<"../noise.mp3">>),
+  Title = tag_title(File),
+  ?assertEqual(<<"NoiseTrack">>, Title).
 
 -endif.
