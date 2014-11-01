@@ -134,24 +134,16 @@ audioproperties_channels(_File) ->
 %% ===================================================================
 -ifdef(TEST).
 
-list_of(N, Elem) -> list_of(N, Elem, []).
-
-list_of(0, _Elem, Acc) -> Acc;
-list_of(N, Elem, Acc) when N > 0 -> list_of(N - 1, Elem, [Elem | Acc]).
-
 new_test() ->
-  {ok, _Ref} = new(<<"noise.mp3">>).
+  {ok, Ref} = new(<<"../noise.mp3">>),
+  ?assert(file_is_valid(Ref)).
 
 new_type_test() ->
-  {ok, _Ref} = new(<<"noise.mp3">>, 'MPEG').
+  {ok, Ref} = new(<<"../noise.mp3">>, 'MPEG'),
+  ?assert(file_is_valid(Ref)).
 
 file_does_not_exist_test() ->
   {error, Reason} = new(<<"test">>),
   ?assertEqual("File could not be opened by taglib.", Reason).
-
-filename_too_long_test() ->
-  LongFileName = list_to_binary(list_of(1024, $a)),
-  {error, Reason} = new(LongFileName),
-  ?assertEqual("Filename is longer than 1023 bytes.", Reason).
 
 -endif.
